@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="formulario_salvar" type="id" />
+    <item name="formulario_Endereco" type="id" />
+    <item name="formulario_Telefone" type="id" />
+    <item name="formulario_Site" type="id" />
+    <item name="formulario_site" type="id" />
+    <item name="formulario_telefone" type="id" />
+    <item name="formulario_endereco" type="id" />
+</resources>

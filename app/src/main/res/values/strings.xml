@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Agenda Mais Completa</string>
+    <string name="btn_Salvar">Salvar</string>
+    <string name="btn_Excluir">Excluir</string>
+    <string name="endereco">Endereco</string>
+    <string name="nome">Nome</string>
+    <string name="site">Site</string>
+    <string name="telefone">Telefone</string>
+</resources>
