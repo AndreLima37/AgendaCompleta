@@ -1,7 +1,9 @@
 package br.com.alura.agenda01;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -18,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -62,7 +65,7 @@ public class FormularioActivity extends AppCompatActivity {
         btnImageUpload.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                obterImagem();                  //Exec use case on image upload
+                selecionarImagem();                  //Exec use case select image
             }
         });
 
@@ -105,16 +108,71 @@ public class FormularioActivity extends AppCompatActivity {
 
     }
 
-    //Pick a image from gallery or camera
-    private void obterImagem() {
-        // Check Camera
-        if (getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//Open the image gallery
-            startActivityForResult(intent, 1);          //Start pick image activity
-        } else {
-            Toast.makeText(FormularioActivity.this, "Camera não suportada!", Toast.LENGTH_LONG).show();
-        }
+    //Select image use case
+    private void selecionarImagem() {
+
+        /**
+         * display to the user, image options!
+         */
+        String[] items = { "Camera", "Galeria", "Cancelar" };
+        AlertDialog.Builder builder = new AlertDialog.Builder(FormularioActivity.this);
+        builder.setTitle("Adicionar imagem");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.select_dialog_item, items);
+
+        builder.setTitle("Selecionar Imagem");
+        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) { // pick from
+                // camera
+                if (items[item].equals("Camera")) {
+                    Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(takePicture, 0);//zero can be replaced with any action code
+                } else if (items[item].equals("Galeria")) {
+                    Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(pickPhoto, 1);//one can be replaced with any action code
+                } else if (items[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        builder.show();
     }
+
+    /**
+     * this function does the crop operation.
+     */
+    /*private Uri picUri;
+
+    private void realizarCrop() {
+        // take care of exceptions
+        try {
+            // call the standard crop action intent (the user device may not
+            // support it)
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            // indicate image type and Uri
+            cropIntent.setDataAndType(picUri, "image/*");
+            // set crop properties
+            cropIntent.putExtra("crop", "true");
+            // indicate aspect of desired crop
+            cropIntent.putExtra("aspectX", 2);
+            cropIntent.putExtra("aspectY", 1);
+            // indicate output X and Y
+            cropIntent.putExtra("outputX", 256);
+            cropIntent.putExtra("outputY", 256);
+            // retrieve data on return
+            cropIntent.putExtra("return-data", true);
+            // start the activity - we handle returning in onActivityResult
+            startActivityForResult(cropIntent, 2);
+        }
+        // respond to users whose devices do not support the crop action
+        catch (ActivityNotFoundException anfe) {
+            Toast toast = Toast
+                    .makeText(this, "This device doesn't support the crop action!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }*/
 
     //After activity finishes
     @Override
@@ -123,6 +181,9 @@ public class FormularioActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK){       //If activity not fail
 
             Uri selectedImage = data.getData();     //get Uri image from intent data
+            /*picUri = selectedImage;
+            realizarCrop();*/
+
             final InputStream imageStream;          //Open inputStream WHY
             try {
                 imageStream = getContentResolver().openInputStream(selectedImage);      //WHY
@@ -134,7 +195,25 @@ public class FormularioActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-        }
+        }// user is returning from cropping the image
+       /* else if (requestCode == 2) {
+            // get the returned data
+            Bundle extras = data.getExtras();
+            // get the cropped bitmap
+            Bitmap thePic = extras.getParcelable("data");
+            helper.adicionaImagemPerfil(thePic);
+
+            //final InputStream imageStream;          //Open inputStream WHY
+            /*try {
+                /*imageStream = getContentResolver().openInputStream(selectedImage);      //WHY
+                Bitmap finalImage = BitmapFactory.decodeStream(imageStream);            //Create bitmap
+
+                helper.adicionaImagemPerfil(thePic);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }*/
     }
 
     //Save Image on internal smartphone storage
